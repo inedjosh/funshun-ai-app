@@ -1,0 +1,40 @@
+{
+  "name": "app",
+  "version": "1.0.0",
+  "description": "funchun-ai api",
+  "main": "index.js",
+  "engines":{
+    "node": "16.15.0",
+    "npm": "8.5.5"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon index.js",
+    "start": "OPENAI_API_KEY=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 MONGODB_URL=mongodb+srv://funshun-ai:funshun-ai@cluster0.pbrthmh.mongodb.net/?retryWrites=true&w=majority JWT_SECRET=mysecretscret node index.js",
+    "start-server": "node index.js"
+  },
+  "keywords": [
+    "ai",
+    "funshun-ai"
+  ],
+  "author": "inedu joshua",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.1",
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "express-fileupload": "^1.4.0",
+    "helmet": "^6.0.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.7.3",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
+    "openai": "^3.1.0",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  }
+}
