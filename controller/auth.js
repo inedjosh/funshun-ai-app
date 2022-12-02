@@ -1,15 +1,23 @@
 const User = require("./../model/user");
 const jwt = require("jsonwebtoken");
+const { validationResult } = require("express-validator");
+const getErrorMessagesFromArray = require("../helpers/getErrorMessagesFromArray");
+const sendErrorApiResponse = require("../utils/responses/sendErrorApiResponse");
 
-exports.auth = async (req, res) => {
-  const { email } = req.body;
-  if (!email) {
-    return res.status(400).json({
-      status: "error",
-      message: "Please enter a valid email address",
+exports.auth = async (req, res, next) => {
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    const errorMessages = getErrorMessagesFromArray(errors.array());
+
+    return res.status(404).json({
+      status: "failed",
+      message: errorMessages,
       data: {},
     });
   }
+
+  const { email } = req.body;
 
   const userExist = await User.findOne({ email: email });
 

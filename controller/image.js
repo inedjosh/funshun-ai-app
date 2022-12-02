@@ -3,128 +3,80 @@ const fs = require("fs");
 const User = require("./../model/user");
 
 // Open-Ai API
-const ai = require("./../index");
+const textToImage = require("./../services/openAi/textToImage");
+const imageTransform = require("../services/openAi/imageTransform");
+const { findByIdAndUpdateFactory } = require("../utils/factories");
 
 exports.textImage = async (req, res) => {
-  try {
-    const { text } = req.body;
-    const userId = req.body.id;
-    console.log(req.body);
+  const { userId } = req;
+  const { text } = req.body;
 
-    const user = await User.findById(userId);
+  const user = User.findById(userId);
 
-    if (!user) {
-      return res.status(404).json({
-        status: "error",
-        message: "User not found",
-        data: {},
-      });
-    }
-
-    if (user.trials === 0) {
-      return res.status(400).json({
-        status: "error",
-        message: "You have used up your trials",
-        data: {},
-      });
-    }
-
-    console.log(user);
-
-    // const response = await openai.openai.createImage({
-    //   prompt: text,
-    //   n: 1,
-    //   size: "1024x1024",
-    // });
-
-    // console.log(response);
-    const response = await ai.openai.createImage({
-      prompt: "a white siamese cat",
-      n: 1,
-      size: "1024x1024",
-    });
-    image_url = await response.data.data[0].url;
-    console.log(image_url);
-    user.trials = user.trials - 1;
-
-    const newUser = await user.save();
-
-    res.status(201).json({
-      status: "success",
-      message: "image generated successfully",
-      // data: { url: response.data.data[0].url, user: newUser },
-    });
-  } catch (error) {
-    if (error.response) {
-      return res.status(400).json({
-        status: "error",
-        message: error.response,
-        data: {},
-      });
-    } else {
-      return res.status(400).json({
-        status: "error",
-        message: error.message,
-        data: {},
-      });
-    }
-  }
-};
-
-exports.transformImage = async (req, res) => {
-  const image = req.file;
-  const { imgDescription } = req.body;
-  const userId = req.body.id;
-
-  const user = await User.findById(userId);
-
-  if (!user) {
+  if (user.trials < 1) {
     return res.status(404).json({
-      status: "error",
-      message: "User not found",
-      data: {},
-    });
-  }
-
-  if (user.trials === 0) {
-    return res.status(400).json({
-      status: "error",
+      status: "failed",
       message: "You have used up your trials",
       data: {},
     });
   }
 
   try {
-    const response = await ai.openai.createImageEdit(
-      fs.createReadStream(image.path),
-      fs.createReadStream(image.path),
-      imgDescription,
-      1,
-      "1024x1024"
-    );
+    const result = await textToImage(text);
 
-    user.trials = user.trials - 1;
-
-    const newUser = await user.save();
+    const newUser = await User.findByIdAndUpdate(userId, { trials: -1 });
 
     res.json({
+      msg: "Succesfully generated image",
       status: "success",
-      message: "image transformed successfully",
-      data: { url: response.data.data[0].url, user: newUser },
+      data: {
+        user: newUser,
+        url: result,
+      },
     });
   } catch (error) {
-    if (error.response) {
-      return res.status(400).json({
-        status: "error",
-        message: error.response,
-        data: {},
-      });
-    } else {
-      return res.status(400).json({
-        status: "error",
-        message: error.message,
-        data: {},
-      });
-    }
+    return res.json({
+      status: "failed",
+      message: error.message,
+      data: {},
+    });
+  }
+};
+
+exports.transformImage = async (req, res) => {
+  const image = req.file;
+  const { text } = req.body;
+  const { userId } = req;
+
+  const user = User.findById(userId);
+
+  if (user.trials < 1) {
+    console.log("exceeded");
+    return res.status(404).json({
+      status: "failed",
+      message: "You have used up your trials",
+      data: {},
+    });
+  }
+
+  try {
+    const result = await imageTransform(image, text);
+
+    const newUser = await User.findByIdAndUpdate(userId, { trials: -1 });
+
+    res.json({
+      msg: "Succesfully generated image",
+      status: "success",
+      data: {
+        user: newUser,
+        url: result,
+      },
+    });
+  } catch (error) {
+    return res.json({
+      status: "failed",
+      message: error.message,
+      data: {},
+    });
   }
 };

@@ -4,7 +4,6 @@ const fs = require("fs");
 const helmet = require("helmet");
 const compression = require("compression");
 const morgan = require("morgan");
-const https = require("https");
 
 const { v4: uuidv4 } = require("uuid");
 const bodyParser = require("body-parser");
