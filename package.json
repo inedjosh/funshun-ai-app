@@ -10,7 +10,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon index.js",
-    "start": "OPENAI_API_KEY=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 MONGODB_URL=mongodb+srv://funshun-ai:funshun-ai@cluster0.pbrthmh.mongodb.net/?retryWrites=true&w=majority JWT_SECRET=mysecretscret node index.js",
+    "start": "node index.js",
     "start-server": "node index.js"
   },
   "keywords": [
