@@ -8,7 +8,7 @@ const profile = require("./profile");
 const suscription = require("./suscription");
 const admin = require("./admin");
 
-router.use("/profie", profile);
+router.use("/profile", profile);
 router.use("/auth", auth);
 router.use("/image", image);
 router.use("/subscribe", suscription);

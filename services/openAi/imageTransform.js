@@ -3,6 +3,7 @@ const fs = require("fs");
 
 module.exports = async (image, text) => {
   try {
+    console.log(part);
     const response = await ai.openai.createImageEdit(
       fs.createReadStream(image.path),
       fs.createReadStream(image.path),

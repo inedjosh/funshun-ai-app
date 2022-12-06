@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const { validationResult } = require("express-validator");
 const getErrorMessagesFromArray = require("../helpers/getErrorMessagesFromArray");
 const sendErrorApiResponse = require("../utils/responses/sendErrorApiResponse");
+const sendSuccessApiResponse = require("../utils/responses/sendSuccessApiResponse");
 
 exports.auth = async (req, res, next) => {
   const errors = validationResult(req);
@@ -10,11 +11,7 @@ exports.auth = async (req, res, next) => {
   if (!errors.isEmpty()) {
     const errorMessages = getErrorMessagesFromArray(errors.array());
 
-    return res.status(404).json({
-      status: "failed",
-      message: errorMessages,
-      data: {},
-    });
+    next(sendErrorApiResponse(res, "failed", errorMessages));
   }
 
   const { email } = req.body;
@@ -26,46 +23,45 @@ exports.auth = async (req, res, next) => {
       expiresIn: "1h",
     });
 
-    return res.status(201).json({
-      status: "success",
-      message: "User found successfully",
-      data: {
-        email: userExist.email,
-        _id: userExist._id,
-        trials: userExist.trials,
-        accountType: userExist.accountType,
-        token,
-      },
-    });
+    const data = {
+      email: userExist.email,
+      _id: userExist._id,
+      trials: userExist.trials,
+      accountType: userExist.accountType,
+      token,
+    };
+
+    next(sendSuccessApiResponse(res, "user found successfully", data));
   }
 
-  try {
-    const user = new User({
-      email: email,
-    });
+  if (!userExist) {
+    try {
+      const user = new User({
+        email: email,
+      });
 
-    const response = await user.save();
+      const response = await user.save();
 
-    const token = await jwt.sign({ userExist }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
+      const token = await jwt.sign({ userExist }, process.env.JWT_SECRET, {
+        expiresIn: "1h",
+      });
 
-    return res.status(201).json({
-      status: "success",
-      message: "User created successfully",
-      data: {
+      const data = {
         email: response.email,
         _id: response._id,
         trials: response.trials,
         accountType: response.accountType,
         token,
-      },
-    });
-  } catch (error) {
-    return res.status(400).json({
-      status: "error",
-      message: "Somethign went wrong, could not create user",
-      data: {},
-    });
+      };
+      next(sendSuccessApiResponse(res, "user found successfully", data));
+    } catch (error) {
+      next(
+        sendErrorApiResponse(
+          res,
+          "failed",
+          "Somethign went wrong, could not create user"
+        )
+      );
+    }
   }
 };

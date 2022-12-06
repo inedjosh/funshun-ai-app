@@ -1,6 +1,6 @@
-module.exports = ({ res, status, message }) => {
-  return res.status(404).send({
-    status,
+module.exports = (res, status, message) => {
+  return res.send({
+    status: status,
     message: message,
     data: {},
   });

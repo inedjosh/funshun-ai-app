@@ -21,6 +21,8 @@ module.exports = (req, res, next) => {
     throw error;
   }
   const { userExist } = decodedToken;
+  console.log(userExist);
+  console.log(userExist._id);
   req.userId = userExist._id;
   next();
 };

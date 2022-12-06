@@ -1,7 +1,7 @@
 const User = require("./../model/user");
 
 exports.getProfile = async (req, res) => {
-  const userId = req.query.id;
+  const { userId } = req;
 
   const user = await User.findById(userId);
 

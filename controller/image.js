@@ -6,17 +6,19 @@ const User = require("./../model/user");
 const textToImage = require("./../services/openAi/textToImage");
 const imageTransform = require("../services/openAi/imageTransform");
 const { findByIdAndUpdateFactory } = require("../utils/factories");
+const sendErrorApiResponse = require("../utils/responses/sendErrorApiResponse");
+const sendSuccessApiResponse = require("../utils/responses/sendSuccessApiResponse");
 
-exports.textImage = async (req, res) => {
+exports.textImage = async (req, res, next) => {
   const { userId } = req;
   const { text } = req.body;
 
-  const user = User.findById(userId);
+  const user = await User.findById(userId);
 
   if (user.trials < 1) {
-    return res.status(404).json({
+    return res.json({
       status: "failed",
-      message: "You have used up your trials",
+      message: "Sorry, you have used up your trials",
       data: {},
     });
   }
@@ -26,13 +28,15 @@ exports.textImage = async (req, res) => {
 
     const newUser = await User.findByIdAndUpdate(userId, { trials: -1 });
 
-    res.json({
-      msg: "Succesfully generated image",
+    const resData = {
+      user: newUser,
+      url: result,
+    };
+
+    return res.json({
       status: "success",
-      data: {
-        user: newUser,
-        url: result,
-      },
+      message: "image succesfully generated",
+      data: resData,
     });
   } catch (error) {
     return res.json({
@@ -43,18 +47,17 @@ exports.textImage = async (req, res) => {
   }
 };
 
-exports.transformImage = async (req, res) => {
+exports.transformImage = async (req, res, next) => {
   const image = req.file;
   const { text } = req.body;
   const { userId } = req;
-
-  const user = User.findById(userId);
+  console.log(image);
+  const user = await User.findById(userId);
 
   if (user.trials < 1) {
-    console.log("exceeded");
-    return res.status(404).json({
+    return res.json({
       status: "failed",
-      message: "You have used up your trials",
+      message: "Sorry, you have used up your trials",
       data: {},
     });
   }
