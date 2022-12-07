@@ -14,7 +14,7 @@ exports.auth = async (req, res, next) => {
     next(sendErrorApiResponse(res, "failed", errorMessages));
   }
 
-  const { email } = req.body;
+  const email = req.body.email.toLowerCase();
 
   const userExist = await User.findOne({ email: email });
 

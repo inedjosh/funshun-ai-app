@@ -22,6 +22,31 @@ class PaystackApi {
     return false;
   };
 
+  chargeAuthorization = async ({ email, amount }) => {
+    try {
+      const endpoint = `${this.BASE_URL}/transaction/charge_authorization`;
+
+      const data = {
+        email: email,
+        amount: amount,
+        start_date: this.CREATED_DATE.toISOString(),
+      };
+
+      const response = await postRequest({
+        endpoint,
+        data,
+        headers: { Authorization: `Bearer ${this.SECRET_KEY}` },
+      });
+
+      if (isSuccessfulResponse(response) && response.data.data)
+        return response.data.data;
+
+      return false;
+    } catch (error) {
+      return false;
+    }
+  };
+
   createSubscription = async ({ email }) => {
     try {
       const endpoint = `${this.BASE_URL}/subscription`;
@@ -156,3 +181,4 @@ class PaystackApi {
 }
 
 export default PaystackApi;
+heroku;

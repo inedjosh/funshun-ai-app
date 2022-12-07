@@ -1,5 +1,7 @@
 const User = require("./../model/user");
 
+exports.chargeUser = async (req, res, next) => {};
+
 exports.upgradeAccount = async (req, res) => {
   const userId = req.query.id;
 

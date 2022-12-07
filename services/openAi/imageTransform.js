@@ -1,20 +1,24 @@
 const ai = require("./../../index");
 const fs = require("fs");
 
-module.exports = async (image, text) => {
+module.exports = async (image) => {
+  console.log("working");
+
   try {
-    console.log(part);
-    const response = await ai.openai.createImageEdit(
+    const response = await ai.openai.createImageVariation(
       fs.createReadStream(image.path),
-      fs.createReadStream(image.path),
-      text,
       1,
       "1024x1024"
     );
     console.log(response.data.data[0].url);
-
-    return response.data.data[0].url;
   } catch (error) {
-    throw new Error(error.message);
+    if (error.response) {
+      console.log(error.response.status);
+      console.log(error.response.data.error.message);
+      throw new Error(error.response.data.error.message);
+    } else {
+      console.log(error.message);
+      throw new Error(error.message);
+    }
   }
 };
