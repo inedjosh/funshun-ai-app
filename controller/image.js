@@ -27,7 +27,7 @@ exports.textImage = async (req, res, next) => {
 
     const user = await User.findById(userId);
 
-    if (user.trials < 1) {
+    if (user.trials === 0) {
       errorHandler(422, "You have exceeded the number of trials"); // throw an error is users trials is < 1
     }
 
@@ -74,7 +74,7 @@ exports.transformImage = async (req, res, next) => {
 
     const user = await User.findById(userId);
 
-    if (user.trials < 1) {
+    if (user.trials === 0) {
       errorHandler(422, "You have exceeded the number of trials");
     }
 
