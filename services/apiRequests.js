@@ -1,4 +1,4 @@
-import axios from "axios";
+const axios = require("axios");
 
 axios.defaults.headers.common["Content-Type"] = "application/json";
 axios.defaults.headers.common["Accept"] = "application/json";

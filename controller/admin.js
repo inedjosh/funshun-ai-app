@@ -1,6 +1,6 @@
 const User = require("./../model/user");
 
-exports.getTotalUsers = async (req, res) => {
+exports.getTotalUsers = async (req, res, next) => {
   try {
     const users = await User.find();
 
@@ -10,6 +10,9 @@ exports.getTotalUsers = async (req, res) => {
       data: { totalUsers: users.length },
     });
   } catch (error) {
-    return res.status(404).json({ status: "error", message: error, data: {} });
+    if (!error.statusCode) {
+      error.statusCode = 500;
+    }
+    next(error);
   }
 };

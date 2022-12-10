@@ -92,8 +92,17 @@ app.get("/", function (req, res) {
   res.send("Welcome to funshun Ai API 😇 - server is up and running!");
 });
 
+// Set error middleware
+app.use((error, req, res, next) => {
+  console.log(error);
+  const status = error.statusCode || 500;
+  const message = error.message;
+  const data = error.data;
+  res.status(status).json({ status: "failed", message: message, data: data });
+});
+
 //** App port listner */
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 
 // setting localhost certificate
 // https.createServer({ key: privateKey, cert: certificate }, app).listen(PORT);

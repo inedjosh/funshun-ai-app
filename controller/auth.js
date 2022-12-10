@@ -2,66 +2,80 @@ const User = require("./../model/user");
 const jwt = require("jsonwebtoken");
 const { validationResult } = require("express-validator");
 const getErrorMessagesFromArray = require("../helpers/getErrorMessagesFromArray");
-const sendErrorApiResponse = require("../utils/responses/sendErrorApiResponse");
-const sendSuccessApiResponse = require("../utils/responses/sendSuccessApiResponse");
+const sendErrorMessage = require("../helpers/sendErrorMessage");
+const errorHandler = require("../helpers/errorHandler");
+const sendMail = require("../services/sendMail");
 
 exports.auth = async (req, res, next) => {
-  const errors = validationResult(req);
+  try {
+    const errors = validationResult(req);
 
-  if (!errors.isEmpty()) {
-    const errorMessages = getErrorMessagesFromArray(errors.array());
+    if (!errors.isEmpty()) {
+      const errorMessages = getErrorMessagesFromArray(errors.array());
 
-    next(sendErrorApiResponse(res, "failed", errorMessages));
-  }
+      errorHandler(422, errorMessages);
+    }
 
-  const email = req.body.email.toLowerCase();
+    const email = req.body.email.toLowerCase();
 
-  const userExist = await User.findOne({ email: email });
+    const userExist = await User.findOne({ email: email });
 
-  if (userExist) {
-    const token = await jwt.sign({ userExist }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
-
-    const data = {
-      email: userExist.email,
-      _id: userExist._id,
-      trials: userExist.trials,
-      accountType: userExist.accountType,
-      token,
-    };
-
-    next(sendSuccessApiResponse(res, "user found successfully", data));
-  }
-
-  if (!userExist) {
-    try {
-      const user = new User({
-        email: email,
-      });
-
-      const response = await user.save();
-
+    if (userExist) {
       const token = await jwt.sign({ userExist }, process.env.JWT_SECRET, {
         expiresIn: "1h",
       });
 
       const data = {
-        email: response.email,
-        _id: response._id,
-        trials: response.trials,
-        accountType: response.accountType,
-        token,
+        email: userExist.email,
+        trials: userExist.trials,
+        accountType: userExist.accountType,
+        _id: userExist._id,
       };
-      next(sendSuccessApiResponse(res, "user found successfully", data));
-    } catch (error) {
-      next(
-        sendErrorApiResponse(
-          res,
-          "failed",
-          "Somethign went wrong, could not create user"
-        )
-      );
+
+      await sendMail({ email });
+
+      res.status(201).json({
+        data: { ...data, token },
+        status: "success",
+        message: "User found!",
+      });
     }
+
+    if (!userExist) {
+      try {
+        const user = new User({
+          email: email,
+        });
+
+        const response = await user.save();
+
+        const token = await jwt.sign(
+          { userExist: user },
+          process.env.JWT_SECRET,
+          {
+            expiresIn: "1h",
+          }
+        );
+
+        const data = {
+          email: user.email,
+          trials: user.trials,
+          accountType: user.accountType,
+          _id: user._id,
+        };
+
+        await sendMail(email);
+
+        res.status(201).json({
+          data: { ...data, token },
+          status: "success",
+          message: "User created!",
+        });
+      } catch (error) {
+        next(sendErrorMessage(error, 500));
+      }
+    }
+  } catch (error) {
+    next(sendErrorMessage(error, 500));
   }
 };

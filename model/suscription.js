@@ -2,9 +2,17 @@ const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
 
-const imageSchema = new Schema(
+const suscriptionSchema = new Schema(
   {
-    imageUrl: {
+    trx_ref: {
+      type: String,
+      required: true,
+    },
+    trx_id: {
+      type: String,
+      required: true,
+    },
+    trx_status: {
       type: String,
       required: true,
     },
@@ -19,4 +27,4 @@ const imageSchema = new Schema(
   }
 );
 
-module.exports = mongoose.model("Image", imageSchema);
+module.exports = mongoose.model("Subscription", suscriptionSchema);

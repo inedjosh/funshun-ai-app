@@ -9,11 +9,21 @@ const userShema = new Schema({
   },
   accountType: {
     type: String,
+    enum: ["free", "pro"],
     default: "free",
   },
   trials: {
     type: Number,
     default: 3,
+  },
+  suscription: {
+    type: String,
+    enum: ["unsuscribed", "paused", "suscribed"],
+    default: "unsuscribed",
+  },
+  billing: {
+    type: Object,
+    default: null,
   },
 });
 

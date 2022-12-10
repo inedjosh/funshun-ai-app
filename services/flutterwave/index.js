@@ -1,49 +1,64 @@
-import { configs } from "../../config";
-import { isSuccessfulResponse } from "../../helpers/isSuccesfulResponse";
-import { getRequest, postRequest } from "../apiRequests";
+const configs = require("../../config");
+const { isSuccessfulResponse } = require("../../helpers/isSuccesfulResponse");
+const generateRef = require("../../utils/generateRef");
+const { getRequest, postRequest } = require("../apiRequests");
 
-class PaystackApi {
+class FlutterwaveApi {
   SECRET_KEY;
   BASE_URL;
   SUBSCRIPTION_PLAN;
   CREATED_DATE;
+  TRX_REF;
 
   constructor() {
-    this.SECRET_KEY = configs.PAYSTACK_SECRET;
-    this.BASE_URL = `https://api.paystack.co`;
+    this.FLW_SECRET_KEY = configs.FLW_SECRET_KEY;
+    this.BASE_URL = `https://api.flutterwave.com/v3/`;
     this.SUBSCRIPTION_PLAN = configs.SUBSCRIPTION_PLAN;
     this.CREATED_DATE = new Date();
+    this.TRX_REF = generateRef();
   }
-
-  // console.log(event.toISOString());
 
   handleError = (error) => {
     console.log(`${error.name}: ${error.message}`);
     return false;
   };
 
-  chargeAuthorization = async ({ email, amount }) => {
+  chargeAuthorization = async ({ email, userId }) => {
     try {
-      const endpoint = `${this.BASE_URL}/transaction/charge_authorization`;
-
+      const endpoint = `${this.BASE_URL}/payments`;
       const data = {
-        email: email,
-        amount: amount,
-        start_date: this.CREATED_DATE.toISOString(),
+        tx_ref: this.TRX_REF,
+        amount: 2000,
+        currency: "NGN",
+        redirect_url: `http://localhost:4000/api/subscribe/auth?email=${email}`,
+        payment_plan: this.SUBSCRIPTION_PLAN,
+        // payment_options: "card",
+        meta: {
+          consumer_id: userId,
+        },
+        customer: {
+          email: email,
+        },
+        customizations: {
+          title: "Funshun AI Pro",
+          logo: "http://www.piedpiper.com/app/themes/joystick-v27/images/logo.png",
+        },
       };
 
       const response = await postRequest({
         endpoint,
         data,
-        headers: { Authorization: `Bearer ${this.SECRET_KEY}` },
+        headers: {
+          Authorization: `Bearer ${process.env.FLW_SECRET_KEY}`,
+        },
       });
 
-      if (isSuccessfulResponse(response) && response.data.data)
+      if (isSuccessfulResponse(response) && response.data.data) {
         return response.data.data;
-
+      }
       return false;
     } catch (error) {
-      return false;
+      throw new Error(error);
     }
   };
 
@@ -180,5 +195,4 @@ class PaystackApi {
   };
 }
 
-export default PaystackApi;
-heroku;
+module.exports = FlutterwaveApi;

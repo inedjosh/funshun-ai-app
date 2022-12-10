@@ -1,6 +1,7 @@
 const ai = require("./../../index");
+const errorHandler = require("../../helpers/errorHandler");
 
-module.exports = async (text) => {
+module.exports = async (text, renders) => {
   try {
     const response = await ai.openai.createImage({
       prompt: text,
@@ -11,6 +12,6 @@ module.exports = async (text) => {
 
     return response.data.data[0].url;
   } catch (error) {
-    throw new Error(error.message);
+    errorHandler(422, error.message);
   }
 };

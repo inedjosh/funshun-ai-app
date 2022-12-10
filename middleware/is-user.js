@@ -16,10 +16,9 @@ module.exports = (req, res, next) => {
     throw err;
   }
 
-  console.log(decodedToken);
   const { userExist } = decodedToken;
 
-  if (!userExist) {
+  if (!userExist || userExist.email !== req.body.email) {
     const error = new Error("Not authenticated.");
     error.statusCode = 401;
     throw error;
