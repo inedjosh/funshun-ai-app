@@ -32,8 +32,6 @@ exports.auth = async (req, res, next) => {
         _id: userExist._id,
       };
 
-      await sendMail({ email });
-
       res.status(201).json({
         data: { ...data, token },
         status: "success",
@@ -64,6 +62,7 @@ exports.auth = async (req, res, next) => {
           _id: user._id,
         };
 
+        // send mail to the user here
         await sendMail(email);
 
         res.status(201).json({

@@ -1,42 +1,17 @@
-const nodemailer = require("nodemailer");
-const path = require("path");
+const mailgun = require("mailgun-js");
 const { configs } = require("../config");
-const sendGridTransport = require("nodemailer-sendgrid-transport");
 
-module.exports = async (reciepient, mailData, subject, mailTemplate) => {
-  // if (appInProductionEnvironment()) {
-  //   transportConfig.secure = true;
-  // }
-  console.log(reciepient);
+const mg = mailgun({
+  apiKey: configs.MAILGUN_KEY,
+  domain: configs.MAILGUN_DOMAIN,
+});
 
-  const transporter = nodemailer.createTransport(
-    sendGridTransport({
-      auth: {
-        api_key: configs.SENDGRID_KEY,
-      },
-    })
-  );
-
-  // const mailHtml = await ejs.renderFile(
-  //   path.resolve(`src/views/emails/${mailTemplate}.ejs`),
-  //   { data: { ...mailData } }
-  // );
-
-  const message = {
-    from: `joshua@lynkk.io`,
-    subject: "Welcome",
-    to: reciepient.email,
-    html: "<p> Welcome</p>",
-  };
-
-  try {
-    const response = await transporter.sendMail(message);
-
-    if (response) console.log(response);
-  } catch (err) {
-    console.error(err);
-  }
-
-  transporter.close();
-  return true;
+const data = {
+  from: "Inedu joshua <me@samples.mailgun.org>",
+  to: `inedujoshua@gmail.com, josh@${configs.MAILGUN_DOMAIN}`,
+  subject: "Hello",
+  text: "Testing some Mailgun awesomness!",
 };
+mg.messages().send(data, function (error, body) {
+  console.log(body);
+});

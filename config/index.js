@@ -22,4 +22,7 @@ exports.configs = {
   SENDGRID_KEY: process.env.SENDGRID_KEY || "",
 
   CLIENT_URL: process.env.CLIENT_URL || "",
+
+  MAILGUN_KEY: process.env.MAILGUN_KEY || "",
+  MAILGUN_DOMAIN: process.env.MAILGUN_DOMAIN || "",
 };
