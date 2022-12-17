@@ -11,6 +11,8 @@ const imageTransform = require("./../services/openAi/imageTransform");
 const sendErrorMessage = require("../helpers/sendErrorMessage");
 const errorHandler = require("../helpers/errorHandler");
 const formatImage = require("../utils/formatImage");
+const { response } = require("express");
+const sterilizeImage = require("../utils/sterilizeImage");
 
 exports.textImage = async (req, res, next) => {
   try {
@@ -28,7 +30,7 @@ exports.textImage = async (req, res, next) => {
     const user = await User.findById(userId);
 
     if (user.trials === 0) {
-      errorHandler(422, "You have exceeded the number of trials"); // throw an error is users trials is < 1
+      errorHandler(422, "You have exceeded the number of trials"); // throw an error if users trials is < 1
     }
 
     const result = await textToImage(text, renders);
@@ -74,15 +76,14 @@ exports.transformImage = async (req, res, next) => {
 
     const user = await User.findById(userId);
 
-    if (user.trials === 0) {
+    if (user.trials === 0)
       errorHandler(422, "You have exceeded the number of trials");
-    }
 
     const formattedImg = formatImage(image.path);
-
+    console.log("image formatted");
     if (formattedImg) {
       const result = await imageTransform();
-
+      console.log("image generated");
       if (result) {
         // reset the users trials on image generation
         const newUser = user;
@@ -108,6 +109,47 @@ exports.transformImage = async (req, res, next) => {
           },
         });
       }
+    }
+  } catch (error) {
+    next(sendErrorMessage(error, 500));
+  }
+};
+
+exports.fetchUsersImages = async (req, res, next) => {
+  try {
+    const { email } = req.query;
+    console.log(req.query);
+    // find user
+    const user = await User.findOne({ email: email });
+
+    if (!user) errorHandler(422, "Authentication failed, please try again");
+
+    const images = await Image.find({ userId: user._id });
+
+    if (images) {
+      // return images
+      return res.status(200).json({
+        status: "success",
+        message: "Images fetched successfully",
+        data: sterilizeImage(images),
+      });
+    }
+  } catch (error) {
+    next(sendErrorMessage(error, 500));
+  }
+};
+
+exports.fetchAllImages = async (req, res, next) => {
+  try {
+    const images = await Image.find();
+
+    if (images) {
+      // return images
+      return res.status(200).json({
+        status: "success",
+        message: "Images fetched successfully",
+        data: sterilizeImage(images),
+      });
     }
   } catch (error) {
     next(sendErrorMessage(error, 500));

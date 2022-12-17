@@ -8,23 +8,22 @@ module.exports = (req, res, next) => {
     throw error;
   }
   const token = authHeader.split(" ")[1];
-  let decodedToken;
+  let decodedUser;
   try {
-    decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    decodedUser = jwt.verify(token, process.env.JWT_SECRET);
   } catch (err) {
     err.statusCode = 500;
     throw err;
   }
 
-  console.log(decodedToken);
-  const { userExist } = decodedToken;
+  console.log(decodedUser);
 
-  if (!userExist) {
+  if (!decodedUser) {
     const error = new Error("Not authenticated.");
     error.statusCode = 401;
     throw error;
   }
 
-  req.userId = userExist._id;
+  req.userId = decodedUser._id;
   next();
 };

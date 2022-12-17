@@ -23,16 +23,14 @@ class FlutterwaveApi {
     return false;
   };
 
-  chargeAuthorization = async ({ email, userId }) => {
+  chargeAuthorization = async ({ email, userId, amount }) => {
     try {
       const endpoint = `${this.BASE_URL}/payments`;
       const data = {
         tx_ref: this.TRX_REF,
-        amount: 2000,
-        currency: "NGN",
-        redirect_url: `http://localhost:4000/api/subscribe/auth?email=${email}`,
-        payment_plan: this.SUBSCRIPTION_PLAN,
-        // payment_options: "card",
+        amount: amount,
+        currency: "USD",
+        redirect_url: `http://localhost:3000/callback?email=${email}`,
         meta: {
           consumer_id: userId,
         },
@@ -101,7 +99,7 @@ class FlutterwaveApi {
 
       return false;
     } catch (error) {
-      logger.error(`${error.name}: ${error.message}`);
+      console.error(`${error.name}: ${error.message}`);
       return false;
     }
   };
@@ -120,7 +118,7 @@ class FlutterwaveApi {
 
       return false;
     } catch (error) {
-      logger.error(`${error.name}: ${error.message}`);
+      console.error(`${error.name}: ${error.message}`);
       return false;
     }
   };
@@ -145,7 +143,7 @@ class FlutterwaveApi {
 
       return false;
     } catch (error) {
-      logger.error(`${error.name}: ${error.message}`);
+      console.error(`${error.name}: ${error.message}`);
       return false;
     }
   };
@@ -170,7 +168,7 @@ class FlutterwaveApi {
 
       return false;
     } catch (error) {
-      logger.error(`${error.name}: ${error.message}`);
+      console.error(`${error.name}: ${error.message}`);
       return false;
     }
   };
@@ -189,7 +187,7 @@ class FlutterwaveApi {
 
       return false;
     } catch (error) {
-      logger.error(`${error.name}: ${error.message}`);
+      console.error(`${error.name}: ${error.message}`);
       return false;
     }
   };

@@ -1,7 +1,9 @@
 const dotenv = require("dotenv");
 
+// configure env config variables
 dotenv.config();
 
+// config obj
 exports.configs = {
   MONGODB_URL: process.env.MONGODB_URL || "",
 
@@ -25,4 +27,6 @@ exports.configs = {
 
   MAILGUN_KEY: process.env.MAILGUN_KEY || "",
   MAILGUN_DOMAIN: process.env.MAILGUN_DOMAIN || "",
+
+  PAYSTACK_SECRET: process.env.PAYSTACK_SECRET || "",
 };

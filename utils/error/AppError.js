@@ -45,7 +45,7 @@ export const handleAppError = (res, err) => {
     });
   }
 
-  logger.error(err.stack);
+  console.error(err.stack);
 
   return sendErrorApiResponse({
     res,

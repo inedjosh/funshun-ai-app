@@ -3,9 +3,14 @@ const isAuth = require("../middleware/is-auth");
 const { check } = require("express-validator");
 const router = express.Router();
 
-const { transformImage, textImage } = require("./../controller/image");
+const {
+  transformImage,
+  textImage,
+  fetchUsersImages,
+  fetchAllImages,
+} = require("./../controller/image");
 
-// text to image route
+//** POST api/image/text */
 router.post(
   "/text",
   isAuth,
@@ -18,7 +23,13 @@ router.post(
   textImage
 );
 
-// image transform route
+//** POST api/image/transform */
 router.post("/transform", isAuth, transformImage);
+
+//** POST api/image/user */
+router.get("/user", isAuth, fetchUsersImages);
+
+//** POST api/image/images */
+router.get("/images", fetchAllImages);
 
 module.exports = router;

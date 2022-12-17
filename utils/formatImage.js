@@ -9,7 +9,7 @@ module.exports = (image) => {
       return false;
     }
     img
-      .resize(400, 400) // resize
+      .resize(1024, 1024) // resize
       // .quality(100) // set PNG quality
       .write("images/image.png"); // save
   });

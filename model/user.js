@@ -25,6 +25,10 @@ const userShema = new Schema({
     type: Object,
     default: null,
   },
+  images: {
+    type: Schema.Types.ObjectId,
+    ref: "Images",
+  },
 });
 
 module.exports = mongoose.model("User", userShema);

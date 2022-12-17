@@ -8,8 +8,10 @@ const sendMail = require("../services/sendMail");
 
 exports.auth = async (req, res, next) => {
   try {
+    // checkfor error
     const errors = validationResult(req);
 
+    // send error message if error found
     if (!errors.isEmpty()) {
       const errorMessages = getErrorMessagesFromArray(errors.array());
 
@@ -18,12 +20,18 @@ exports.auth = async (req, res, next) => {
 
     const email = req.body.email.toLowerCase();
 
+    // check for user
     const userExist = await User.findOne({ email: email });
 
     if (userExist) {
-      const token = await jwt.sign({ userExist }, process.env.JWT_SECRET, {
-        expiresIn: "1h",
-      });
+      // create token
+      const token = await jwt.sign(
+        { email: userExist.email, _id: userExist._id },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: "1h",
+        }
+      );
 
       const data = {
         email: userExist.email,
@@ -32,6 +40,7 @@ exports.auth = async (req, res, next) => {
         _id: userExist._id,
       };
 
+      // send response
       res.status(201).json({
         data: { ...data, token },
         status: "success",
@@ -39,42 +48,47 @@ exports.auth = async (req, res, next) => {
       });
     }
 
+    // if user does not exist create a new account
     if (!userExist) {
       try {
         const user = new User({
           email: email,
         });
 
-        const response = await user.save();
+        const newUser = await user.save();
 
-        const token = await jwt.sign(
-          { userExist: user },
-          process.env.JWT_SECRET,
-          {
-            expiresIn: "1h",
-          }
-        );
+        if (newUser) {
+          // create token
+          const token = await jwt.sign(
+            { email: newUser.email, _id: newUser._id },
+            process.env.JWT_SECRET,
+            {
+              expiresIn: "1h",
+            }
+          );
 
-        const data = {
-          email: user.email,
-          trials: user.trials,
-          accountType: user.accountType,
-          _id: user._id,
-        };
+          const data = {
+            email: user.email,
+            trials: user.trials,
+            accountType: user.accountType,
+            _id: user._id,
+          };
 
-        // send mail to the user here
-        await sendMail(email);
+          // send mail to the user here
+          // await sendMail(email);
 
-        res.status(201).json({
-          data: { ...data, token },
-          status: "success",
-          message: "User created!",
-        });
+          res.status(201).json({
+            data: { ...data, token },
+            status: "success",
+            message: "User created!",
+          });
+        }
       } catch (error) {
         next(sendErrorMessage(error, 500));
       }
     }
   } catch (error) {
+    // catch and throw error message
     next(sendErrorMessage(error, 500));
   }
 };

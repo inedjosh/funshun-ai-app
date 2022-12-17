@@ -19,8 +19,6 @@ const payload = { id: process.env.SUSCRIPTION_PLAN };
 
 exports.chargeUser = async (req, res, next) => {
   try {
-    console.log("working...");
-
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
@@ -29,7 +27,7 @@ exports.chargeUser = async (req, res, next) => {
       errorHandler(422, errorMessages);
     }
 
-    const email = req.body.email;
+    const { email, amount } = req.body;
 
     const user = await User.findOne({ email: email });
 
@@ -37,14 +35,12 @@ exports.chargeUser = async (req, res, next) => {
       errorHandler(422, "Authentication failed, please try again");
     }
 
-    if (user.accountType === "pro")
-      errorHandler(412, "You are suscribed already");
-
     const userId = user._id.toString();
 
     const response = await flutterwave.chargeAuthorization({
       email,
       userId,
+      amount,
     });
 
     if (response) {
@@ -65,14 +61,15 @@ exports.verifyCharge = async (req, res, next) => {
       const transactionDetails = await flw.Transaction.verify({
         id: req.query.transaction_id,
       });
-      console.log(transactionDetails);
+      console.log("trx", transactionDetails);
       if (
         transactionDetails.data.status === "successful" &&
-        transactionDetails.data.amount === 2000 &&
-        transactionDetails.data.currency === "NGN"
+        transactionDetails.data.amount === 49.99 &&
+        transactionDetails.data.currency === "USD"
       ) {
+        console.log(req.query.email);
         const user = await User.findOne({ email: req.query.email });
-
+        console.log(user);
         if (!user) {
           errorHandler(422, "Authentication failed, please try again");
         }
@@ -80,7 +77,7 @@ exports.verifyCharge = async (req, res, next) => {
         // create suscription record with users ID
         const newSub = new Subscription({
           trx_id: req.query.transaction_id,
-          trx_ref: req.query.tx_ref,
+          trx_ref: req.query.trx_ref,
           trx_status: req.query.status,
           userId: user._id,
           issuer: transactionDetails.data.card.issuer,
@@ -101,7 +98,7 @@ exports.verifyCharge = async (req, res, next) => {
         user.suscription = "suscribed";
         user.billing = {
           trx_id: req.query.transaction_id,
-          trx_ref: req.query.tx_ref,
+          trx_ref: req.query.trx_ref,
           trx_status: req.query.status,
           charge_amount: transactionDetails.data.charged_amount,
           issuer: transactionDetails.data.card.issuer,
@@ -114,11 +111,13 @@ exports.verifyCharge = async (req, res, next) => {
         };
         // save the user on DB
         await user.save();
-
+        console.log("saved user");
         // Transaction was succesful
-        return res.redirect(
-          `${configs.CLIENT_URL}/payments?email=${user.email}`
-        );
+        return res.json({
+          status: "success",
+          message: "transaction was successfully verified",
+          data: { ...user },
+        });
       }
     } else {
       // Inform the customer their payment was unsuccessful
@@ -127,114 +126,6 @@ exports.verifyCharge = async (req, res, next) => {
     }
   } catch (error) {
     console.log(error);
-    next(sendErrorMessage(error, 500));
-  }
-};
-
-exports.deactivateBilling = async (req, res, next) => {
-  try {
-    const user = await User.findById(req.userId);
-
-    // checkfor user in DB
-    if (!user) errorHandler(422, "Authentication failed, please try again!");
-
-    const response = await flw.Subscription.cancel(payload);
-
-    if (response) {
-      //** update the user's record on DB  */
-
-      // Set Updated records on user Obj
-      user.suscription = "paused";
-
-      // save the user on DB
-      await user.save();
-
-      res.status(201).json({
-        status: "success",
-        message: "billing has been successful paused",
-        data: response,
-      });
-    }
-  } catch (error) {
-    next(sendErrorMessage(error, 500));
-  }
-};
-
-exports.activateBiling = async (req, res, next) => {
-  try {
-    const user = await User.findById(req.userId);
-
-    // checkfor user in DB
-    if (!user) errorHandler(422, "Authentication failed, please try again!");
-    const response = await flw.Subscription.activate(payload);
-
-    if (response) {
-      //** update the user's record on DB  */
-
-      // Set Updated records on user Obj
-      user.suscription = "suscribed";
-
-      // save the user on DB
-      await user.save();
-
-      res.status(201).json({
-        status: "success",
-        message: "billing has been successful resumed",
-        data: response,
-      });
-    }
-  } catch (error) {
-    next(sendErrorMessage(error, 500));
-  }
-};
-
-exports.verifyPayment = async (req, res, next) => {
-  try {
-    const user = await User.findById(req.userId);
-
-    if (!user) errorHandler(422, "Authentication failed, try again");
-
-    res.status(201).json({
-      data: {
-        user,
-        message: "Payment verified",
-        status: "success",
-      },
-    });
-  } catch (error) {
-    next(sendErrorMessage(error, 500));
-  }
-};
-
-exports.createPayment = async (req, res, next) => {
-  try {
-    const errors = validationResult(req);
-
-    if (!errors.isEmpty()) {
-      const errorMessages = getErrorMessagesFromArray(errors.array());
-
-      errorHandler(422, errorMessages);
-    }
-
-    const amount = req.body.amount;
-    const name = req.body.name;
-    const interval = req.body.interval;
-
-    const details = {
-      amount,
-      name,
-      interval,
-    };
-    flw.PaymentPlan.create(details)
-      .then((data) => {
-        res.status(201).json({
-          data,
-          status: "success",
-          message: "payment plan succesfully created",
-        });
-      })
-      .catch((error) => next(sendErrorMessage(error, 500)));
-  } catch (error) {
     next(sendErrorMessage(error, 500));
   }
 };

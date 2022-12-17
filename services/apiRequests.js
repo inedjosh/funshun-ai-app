@@ -26,7 +26,7 @@ exports.getRequest = async ({ endpoint, headers }) => {
 
     return response;
   } catch (error) {
-    logger.error(
+    console.error(
       `${error.response.status} ${JSON.stringify(error.response.data)}`
     );
     throw new Error(error.response);
@@ -49,7 +49,7 @@ exports.postRequest = async ({ endpoint, data, headers }) => {
 
     return response;
   } catch (error) {
-    logger.error(
+    console.error(
       `${error.response.status} ${JSON.stringify(error.response.data)}`
     );
     throw new Error(error);
@@ -61,7 +61,7 @@ exports.patchRequest = async ({ endpoint, data }) => {
     const response = await axios.patch(endpoint, { ...data });
     return response;
   } catch (error) {
-    logger.error(
+    console.error(
       `${error.response.status} ${JSON.stringify(error.response.data)}`
     );
     throw new Error(error);
@@ -73,7 +73,7 @@ exports.deleteRequest = async ({ endpoint }) => {
     const response = await axios.delete(endpoint);
     return response;
   } catch (error) {
-    logger.error(
+    console.error(
       `${error.response.status} ${JSON.stringify(error.response.data)}`
     );
     throw new Error(error);
