@@ -13,6 +13,7 @@ const errorHandler = require("../helpers/errorHandler");
 const formatImage = require("../utils/formatImage");
 const { response } = require("express");
 const sterilizeImage = require("../utils/sterilizeImage");
+const { configs } = require("../config");
 
 exports.textImage = async (req, res, next) => {
   try {
@@ -29,9 +30,10 @@ exports.textImage = async (req, res, next) => {
 
     const user = await User.findById(userId);
 
-    if (user.trials === 0) {
+    if (user.trials === 0)
       errorHandler(422, "You have exceeded the number of trials"); // throw an error if users trials is < 1
-    }
+
+    if (!user.verified) errorHandler(422, "Your account is not verified");
 
     const result = await textToImage(text, renders);
 
@@ -79,6 +81,8 @@ exports.transformImage = async (req, res, next) => {
     if (user.trials === 0)
       errorHandler(422, "You have exceeded the number of trials");
 
+    if (!user.verified) errorHandler(422, "Your account is not verified");
+
     const formattedImg = formatImage(image.path);
     console.log("image formatted");
     if (formattedImg) {
@@ -117,21 +121,36 @@ exports.transformImage = async (req, res, next) => {
 
 exports.fetchUsersImages = async (req, res, next) => {
   try {
-    const { email } = req.query;
-    console.log(req.query);
+    const { email } = req;
+    const page = parseInt(req.query.page);
+
     // find user
     const user = await User.findOne({ email: email });
 
     if (!user) errorHandler(422, "Authentication failed, please try again");
 
-    const images = await Image.find({ userId: user._id });
+    if (!user.verified) errorHandler(422, "Your account is not verified");
+
+    const totalImage = await Image.countDocuments();
+
+    const images = await Image.find({ userId: user._id })
+      .skip((page - 1) * configs.IMAGES_PER_PAGE)
+      .limit(5);
 
     if (images) {
       // return images
       return res.status(200).json({
         status: "success",
         message: "Images fetched successfully",
-        data: sterilizeImage(images),
+        data: {
+          totalCount: totalImage,
+          images: sterilizeImage(images),
+          pageData: {
+            pageNumber: page,
+            nextPage: page == Math.floor(totalImage / 5) ? page : page + 1,
+            previousPage: page == 1 ? 1 : page - 1,
+          },
+        },
       });
     }
   } catch (error) {
@@ -141,14 +160,21 @@ exports.fetchUsersImages = async (req, res, next) => {
 
 exports.fetchAllImages = async (req, res, next) => {
   try {
-    const images = await Image.find();
+    const page = parseInt(req.query.page);
+
+    const totalImage = await Image.countDocuments();
+
+    const images = await Image.find().sort({ createdAt: -1 }).limit(5);
 
     if (images) {
       // return images
       return res.status(200).json({
         status: "success",
         message: "Images fetched successfully",
-        data: sterilizeImage(images),
+        data: {
+          totalCount: totalImage,
+          images: sterilizeImage(images),
+        },
       });
     }
   } catch (error) {

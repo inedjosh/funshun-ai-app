@@ -1,0 +1,39 @@
+<%- include('../partials/header') %>
+
+<h2 class="greetingText">Hello,</h2>
+
+<p class="p1">
+  <span>Your Purchase of</span>
+  <span class="bold">$<%= data.amount %> for <%= data.trials %> renders </span
+  >was successful .
+</p>
+
+<p>Below are details of your purcahse</p>
+
+<div class="detailsContent">
+  <p>Amount:</p>
+  <span class="value">USD <%= data.amount %>.00</span>
+
+  <p>Reference:</p>
+  <span class="value"><%= data.trx_ref %> </span>
+
+  <p>Transaction ID:</p>
+  <span class="value"><%= data.trx_id %> </span>
+
+  <p>Status:</p>
+  <span class="value"><%= data.Issuer %></span>
+
+  <p>Issuer:</p>
+  <span class="value"><%= data.type %></span>
+
+  <p>Type:</p>
+  <span class="value"><%= data.trx_status %></span>
+
+  <p>Last four digits:</p>
+  <span class="value"><%= data.card_last_4digits %></span>
+
+  <p>Date:</p>
+  <span class="value"> <%= data.date %> </span>
+</div>
+
+<%- include('../partials/footer') %>

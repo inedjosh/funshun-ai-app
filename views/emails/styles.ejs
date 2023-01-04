@@ -1,0 +1,342 @@
+<style>
+  .body {
+    margin: 0;
+    padding: 0;
+    background: #eee;
+    font-family: "Be Vietnam Pro", sans-serif;
+    width: 100%;
+    font-size: 18px;
+  }
+  .btnLink {
+    background-color: #555;
+    color: #fff;
+    height: 50px;
+    width: 100%;
+    margin: 40px 0;
+  }
+  .btnLink a {
+    text-decoration: none;
+  }
+  .logoDiv {
+    width: 200px;
+    margin: 20px auto;
+  }
+  .logo {
+    width: 200px;
+    margin: 25px auto 0;
+  }
+  .mainDiv {
+    background: #fff;
+    margin: 30px 80px;
+  }
+  .contentDiv {
+    padding: 30px;
+    background: #fff;
+  }
+  .greetingText {
+    font-weight: 600;
+    font-size: 20px;
+  }
+  .p1 {
+    padding: 10px 0;
+    font-weight: 400;
+    font-size: 18px;
+  }
+  .h1 {
+    padding: 12px 0;
+    color: #3300cc;
+  }
+  .detailsContent {
+    color: #555;
+    font-weight: 400;
+    font-size: 18px;
+  }
+
+  .detailsContent p {
+    display: inline-block;
+    float: left;
+    clear: left;
+    text-align: left;
+    width: 220px;
+  }
+  .value {
+    display: inline-block;
+    float: left;
+    margin-top: 17px;
+  }
+  .bottom {
+    font-weight: 400;
+    font-size: 18px;
+    display: inline-block;
+    float: left;
+    margin-top: 10px;
+    text-align: left;
+    clear: left;
+  }
+  .footer {
+    margin-top: 50px;
+    padding: 40px 0;
+    color: #000;
+    font-size: 18px;
+    font-weight: 200px;
+    font-weight: bold;
+  }
+  .flexDiv {
+    width: 100%;
+  }
+  .ul {
+    font-weight: 400px;
+    list-style: none;
+    display: inline-block;
+    float: left;
+    margin-top: -20px;
+  }
+  .li1 {
+    padding: 10px 0;
+  }
+  .li1a {
+    color: #000;
+    text-decoration: none;
+    font-weight: 200;
+    font-weight: bold;
+  }
+  .li2 {
+    padding: 10px 0;
+    font-weight: 500;
+  }
+
+  .social {
+    width: 35px;
+    height: 35px;
+  }
+  .address {
+    font-weight: 200;
+    margin-top: 10px;
+  }
+  .googleDiv {
+    padding-right: 30px;
+    display: inline-block;
+    float: right;
+    margin-top: 17px;
+    margin-top: -20px;
+  }
+
+  .google {
+    width: 180px;
+  }
+  .footnote {
+    text-align: center;
+    font-weight: 200;
+    font-size: 18px;
+    margin-top: 150px;
+    margin-bottom: -20px;
+  }
+  @media screen and (max-width: 720px) and (min-width: 480px) {
+    body {
+      font-size: 18px;
+    }
+    .detailsContent {
+      padding: 0 20px;
+    }
+    .greetingText {
+      margin: 10px 20px;
+    }
+    .p1 {
+      margin: 10px 20px;
+    }
+    .bottom {
+      margin: 0 20px;
+    }
+    .ul {
+      margin-left: 20px;
+    }
+    .googleDiv {
+      margin-right: 20px;
+    }
+  }
+  @media screen and (max-width: 720px) {
+    body {
+      font-size: 18px;
+    }
+    .mainDiv {
+      border: none;
+      background: #fff;
+      margin: 20px 0;
+      width: 100%;
+    }
+    .logoDiv {
+      /* width: 100%; */
+      margin: 20px auto;
+    }
+    .logo {
+      width: 150px;
+      margin: 20px auto 0;
+    }
+    .contentDiv {
+      padding: 15px;
+    }
+    .p1 {
+      padding: 5px 0;
+      font-size: 18px;
+    }
+    .h1 {
+      padding: 5px 0;
+    }
+    .detailsContent {
+      color: #555;
+      font-weight: 200;
+      font-size: 18px;
+    }
+
+    .detailsContent p {
+      display: inline-block;
+      float: left;
+      clear: left;
+      text-align: left;
+      width: 120px;
+    }
+    .value {
+      display: inline-block;
+      float: left;
+      margin-top: 13px;
+    }
+    .bottom {
+      padding: 2px 0;
+      font-weight: 400;
+      font-size: 18px;
+      margin-top: 5px;
+    }
+    .footer {
+      margin-top: 50px;
+      padding: 50px 0;
+      font-size: 18px;
+      color: #000;
+      font-weight: bold;
+    }
+    .ul {
+      padding-left: 5px;
+      width: 150px;
+    }
+    .googleDiv {
+      padding-right: 5px;
+    }
+    .li1 {
+      padding: 3px 0;
+    }
+
+    .li2 {
+      padding: 8px 0;
+      font-weight: 500;
+      color: #000;
+    }
+    .social {
+      width: 25px;
+      height: 25px;
+    }
+
+    .address {
+      font-weight: 200;
+      margin-top: 8px;
+    }
+    .google {
+      width: 150px;
+    }
+    .footnote {
+      text-align: center;
+      font-weight: 400;
+      font-size: 7px;
+    }
+  }
+  @media screen and (max-width: 450px) {
+    body {
+      font-size: 16px;
+    }
+    .mainDiv {
+      border: none;
+      background: #fff;
+      margin: 20px 0;
+      width: 100%;
+    }
+    .logo {
+      width: 150px;
+    }
+    .logoDiv {
+      margin: 20px auto;
+    }
+    .ul {
+      padding-left: 4px;
+      width: 120px;
+    }
+    .googleDiv {
+      padding-right: 0px;
+      width: 100px;
+    }
+    .footer {
+      margin-top: 50px;
+      padding: 40px 0;
+      color: #000;
+      font-size: 13px;
+      font-weight: 200px;
+      font-weight: bold;
+    }
+    .flexDiv {
+      width: 100vw;
+      display: block;
+      padding: 0 10px;
+    }
+    .ul {
+      font-weight: 400px;
+      list-style: none;
+      display: block;
+      width: 100vw;
+    }
+    .li1 {
+      padding: 10px 0;
+    }
+    .li1a {
+      color: #000;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .l1a2 {
+      padding: 0 5px;
+    }
+    .li2 {
+      padding: 10px 0;
+      font-weight: 500;
+      width: 100%;
+      color: #000;
+    }
+
+    .social {
+      width: 45px;
+      height: 45px;
+    }
+    .address {
+      font-weight: 200;
+      margin-top: 10px;
+    }
+    .googleDiv {
+      display: block;
+      width: 100%;
+      padding: 20px 0;
+    }
+    .savingText {
+      font-weight: 200;
+      padding: 0 5px;
+    }
+    .google {
+      width: 150px;
+      display: block;
+      /* padding: 0 25px;  */
+    }
+
+    .footnote {
+      text-align: center;
+      font-weight: 200;
+      font-size: 10px;
+      margin-top: 150px;
+      margin-bottom: -20px;
+    }
+  }
+</style>

@@ -8,6 +8,7 @@ const errorHandler = require("../helpers/errorHandler");
 const Subscription = require("./../model/suscription");
 const { response } = require("express");
 const { configs } = require("../config");
+const sendMail = require("../services/sendMail");
 
 const flw = new Flutterwave(
   process.env.FLW_PUBLIC_KEY,
@@ -28,12 +29,14 @@ exports.chargeUser = async (req, res, next) => {
     }
 
     const { email, amount } = req.body;
-
+    console.log(email);
     const user = await User.findOne({ email: email });
 
     if (!user) {
       errorHandler(422, "Authentication failed, please try again");
     }
+
+    if (!user.verified) errorHandler(422, "Your account is not verified");
 
     const userId = user._id.toString();
 
@@ -63,11 +66,10 @@ exports.verifyCharge = async (req, res, next) => {
       });
       console.log("trx", transactionDetails);
       if (
-        transactionDetails.data.status === "successful" &&
-        transactionDetails.data.amount === 49.99 &&
-        transactionDetails.data.currency === "USD"
+        (transactionDetails.data.status === "successful" &&
+          transactionDetails.data.amount === 49.99) ||
+        (10 && transactionDetails.data.currency === "USD")
       ) {
-        console.log(req.query.email);
         const user = await User.findOne({ email: req.query.email });
         console.log(user);
         if (!user) {
@@ -87,15 +89,18 @@ exports.verifyCharge = async (req, res, next) => {
           card_first_6digits: transactionDetails.data.card.first_6digits,
           card_last_4digits: transactionDetails.data.card.last_4digits,
           date: new Date(),
+          amount: transactionDetails.data.amount,
         });
 
         // save the suscription on the DB
         await newSub.save();
-
+        console.log("before", user, user.trials);
         // Set Updated records on user Obj
-        user.accountType = "pro";
-        user.trials += 200;
-        user.suscription = "suscribed";
+        user.accountType = "paid";
+        user.trials =
+          transactionDetails.data.amount === 49.9
+            ? user.trials + 50
+            : user.trials + 200;
         user.billing = {
           trx_id: req.query.transaction_id,
           trx_ref: req.query.trx_ref,
@@ -108,15 +113,33 @@ exports.verifyCharge = async (req, res, next) => {
           card_first_6digits: transactionDetails.data.card.first_6digits,
           card_last_4digits: transactionDetails.data.card.last_4digits,
           date: new Date(),
+          amount: transactionDetails.data.amount,
+          trials:
+            transactionDetails.data.amount === 49.9
+              ? user.trials + 50
+              : user.trials + 200,
         };
         // save the user on DB
-        await user.save();
+        if (!(await user.save()))
+          errorHandler(
+            422,
+            "Something went wrong, could not validate Transaction"
+          );
+        console.log("after", user, user.trials);
+        // send mail to the user confirming payment
+        await sendMail({
+          email: req.query.email,
+          data: user.billing,
+          subject: "Purchase successful",
+          template: "/suscription/suscribe",
+        });
+
         console.log("saved user");
         // Transaction was succesful
         return res.json({
           status: "success",
           message: "transaction was successfully verified",
-          data: { ...user },
+          data: {},
         });
       }
     } else {

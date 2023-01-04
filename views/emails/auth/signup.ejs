@@ -1,0 +1,23 @@
+<%- include('../partials/header') %>
+
+<h2 class="greetingText">Hello</h2>
+
+<p class="p1">Your account was successfuly created!</p>
+<p class="p1">
+  click the button bellow to verify your account and get 3 free trials
+</p>
+
+<button class="btnLink">
+  <a
+    href="<%=data.link %>"
+    style="
+      color: #fff;
+      font-size: 20px;
+      font-weight: bold;
+      text-transform: capitalize;
+    "
+    >Click here</a
+  >
+</button>
+
+<%- include('../partials/footer') %>

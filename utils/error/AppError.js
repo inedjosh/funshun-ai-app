@@ -1,6 +1,10 @@
-import sendErrorApiResponse from "../responses/sendErrorApiResponse";
+const sendErrorApiResponse = require("../responses/sendErrorApiResponse");
 
-export class AppError extends Error {
+class AppError extends Error {
+  statusCode;
+  status;
+  isOperational;
+
   constructor(statusCode, message) {
     super();
 
@@ -15,7 +19,7 @@ export class AppError extends Error {
   }
 }
 
-export const handleAppError = (res, err) => {
+const handleAppError = (res, err) => {
   if (err.isOperational) {
     const { statusCode, message, status } = err;
 
@@ -45,8 +49,6 @@ export const handleAppError = (res, err) => {
     });
   }
 
-  console.error(err.stack);
-
   return sendErrorApiResponse({
     res,
     status: "error",
@@ -54,3 +56,6 @@ export const handleAppError = (res, err) => {
     message: `We encounted a problem, we are currently on it!`,
   });
 };
+
+exports.handleAppError = handleAppError;
+exports.AppError = AppError;

@@ -1,25 +1,40 @@
 const mongoose = require("mongoose");
+const { configs } = require("../config");
+const { generateString } = require("../utils/auth/generateAuthPin");
+const { hashString } = require("../utils/auth/hash");
 
 const Schema = mongoose.Schema;
 
-const userShema = new Schema({
+const userSchema = new Schema({
   email: {
     type: String,
     required: true,
   },
+  verified: {
+    type: Boolean,
+    default: false,
+  },
+  lastName: {
+    type: String,
+    required: true,
+  },
+  firstName: {
+    type: String,
+    required: true,
+  },
+  password: {
+    type: String,
+    required: true,
+  },
+  verificationString: String,
   accountType: {
     type: String,
-    enum: ["free", "pro"],
+    enum: ["free", "paid"],
     default: "free",
   },
   trials: {
     type: Number,
-    default: 3,
-  },
-  suscription: {
-    type: String,
-    enum: ["unsuscribed", "paused", "suscribed"],
-    default: "unsuscribed",
+    default: 0,
   },
   billing: {
     type: Object,
@@ -29,6 +44,21 @@ const userShema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "Images",
   },
+
+  verificationStringExpiry: Date,
 });
 
-module.exports = mongoose.model("User", userShema);
+userSchema.methods.generateVerificationString = async function () {
+  const string = generateString();
+
+  //encrypt string and save to DB
+  this.verificationString = await hashString(string);
+
+  // save otp expiry date to DB
+  this.verificationStringExpiry =
+    Date.now() + 1000 * 60 * parseInt(configs.VERIFCATION_TIME_EXPIRY_MINUTES);
+
+  return string;
+};
+
+module.exports = mongoose.model("User", userSchema);

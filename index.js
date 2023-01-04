@@ -16,6 +16,7 @@ const routes = require("./routes/index");
 const { connectDB } = require("./DB");
 const { Configuration, OpenAIApi } = require("openai");
 const { configs } = require("./config");
+const { handleAppError } = require("./utils/error/AppError");
 
 //** Set up express */
 const app = express();
@@ -93,12 +94,9 @@ app.get("/", function (req, res) {
 });
 
 // Set error middleware
-app.use((error, req, res, next) => {
-  console.log(error);
-  const status = error.statusCode || 500;
-  const message = error.message;
-  const data = error.data;
-  res.status(status).json({ status: "failed", message: message, data: data });
+// Global error middleware
+app.use((err, req, res, next) => {
+  return handleAppError(res, err);
 });
 
 //** App port listner */

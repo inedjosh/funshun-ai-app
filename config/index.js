@@ -29,4 +29,9 @@ exports.configs = {
   MAILGUN_DOMAIN: process.env.MAILGUN_DOMAIN || "",
 
   PAYSTACK_SECRET: process.env.PAYSTACK_SECRET || "",
+
+  IMAGES_PER_PAGE: process.env.IMAGES_PER_PAGE || "",
+
+  VERIFCATION_TIME_EXPIRY_MINUTES:
+    process.env.VERIFCATION_TIME_EXPIRY_MINUTES || "",
 };

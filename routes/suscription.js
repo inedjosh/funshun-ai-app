@@ -17,6 +17,7 @@ router.post(
       .custom((val) => val === 49.99 || val === 10)
       .withMessage("Please seelct a valid payment option"),
   ],
+
   suscriptionController.chargeUser
 );
 
