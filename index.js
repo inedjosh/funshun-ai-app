@@ -100,7 +100,7 @@ app.use((err, req, res, next) => {
 });
 
 //** App port listner */
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 4001;
 
 // setting localhost certificate
 // https.createServer({ key: privateKey, cert: certificate }, app).listen(PORT);
